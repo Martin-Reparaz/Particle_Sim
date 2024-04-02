@@ -15,7 +15,7 @@ sudo chmod +x build.sh clean.sh
 `./clean.sh`
 
 ## Modify parameters
-By moddifying `params.txt` file, you can experiment with the different parameters that mopdify the behaviour of the particles.
+By moddifying `params.txt` file, you can experiment with the different parameters that modify the behaviour of the particles.
 
 ## Interact with the particles
 By clicking inside the Particle_Sim window you can interact with the particles. Depending of the click you make, you can attract or repulse the particles.
