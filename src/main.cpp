@@ -144,17 +144,17 @@ void leer_params(){
 
 }
 
-// Nuevas líneas para generar posiciones iniciales con distribuciones aleatorias
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_int_distribution<int> disX(0, SCREEN_WIDTH - POINT_SIZE);
-std::uniform_int_distribution<int> disY(0, SCREEN_HEIGHT - POINT_SIZE);
-std::uniform_real_distribution<float> disVelX(-4.0, 4.0);
-std::uniform_real_distribution<float> disVelY(-4.0, 4.0);
-
 int main(int argc, char* args[]) {
 
     leer_params();
+
+    // Nuevas líneas para generar posiciones iniciales con distribuciones aleatorias
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> disX(0, SCREEN_WIDTH - POINT_SIZE);
+    std::uniform_int_distribution<int> disY(0, SCREEN_HEIGHT - POINT_SIZE);
+    std::uniform_real_distribution<float> disVelX(-4.0, 4.0);
+    std::uniform_real_distribution<float> disVelY(-4.0, 4.0);
 	
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL no pudo inicializarse! SDL_Error: %s\n", SDL_GetError());
