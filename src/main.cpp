@@ -153,6 +153,9 @@ std::uniform_real_distribution<float> disVelX(-4.0, 4.0);
 std::uniform_real_distribution<float> disVelY(-4.0, 4.0);
 
 int main(int argc, char* args[]) {
+
+    leer_params();
+	
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL no pudo inicializarse! SDL_Error: %s\n", SDL_GetError());
         return 1;
@@ -169,8 +172,6 @@ int main(int argc, char* args[]) {
         printf("El renderizador no pudo crearse! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-
-    leer_params();
 
     std::vector<Point> points;
 
