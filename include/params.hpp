@@ -11,15 +11,15 @@ struct Point
     SDL_Color color;
 };
 
-int SCREEN_WIDTH = 640;
-int SCREEN_HEIGHT = 480;
-int POINT_SIZE = 1;
-int NUM_POINTS = 500;
-float MAX_VELOCITY = 10.0f;
-float BASE_GRAVITY_CONSTANT = 0.0008f;
-float MAX_GRAVITY_RANGE = 150.0f;
-float MOUSE_INFLUENCE_RADIUS = 50.0f;
-float FRICTION_FACTOR = 0.2f;
-float GRAVITY = 0.1f;
+extern int SCREEN_WIDTH;
+extern int SCREEN_HEIGHT;
+extern int POINT_SIZE;
+extern int NUM_POINTS;
+extern float MAX_VELOCITY;
+extern float BASE_GRAVITY_CONSTANT;
+extern float MAX_GRAVITY_RANGE;
+extern float MOUSE_INFLUENCE_RADIUS;
+extern float FRICTION_FACTOR;
+extern float GRAVITY;
 
 #endif

@@ -1,5 +1,16 @@
 #include "../include/utils.hpp"
 
+int SCREEN_WIDTH = 640;
+int SCREEN_HEIGHT = 480;
+int POINT_SIZE = 1;
+int NUM_POINTS = 500;
+float MAX_VELOCITY = 10.0f;
+float BASE_GRAVITY_CONSTANT = 0.0008f;
+float MAX_GRAVITY_RANGE = 150.0f;
+float MOUSE_INFLUENCE_RADIUS = 50.0f;
+float FRICTION_FACTOR = 0.2f;
+float GRAVITY = 0.1f;
+
 int generate_random_int(int min, int max)
 {
     std::random_device rd;
@@ -59,17 +70,47 @@ void handle_collision(Point &point, Point &point2)
     point.yVelocity = sin(angle) * MAX_VELOCITY;
 }
 
-void read_params()
+void read_params(int &SCREEN_WIDTH, int &SCREEN_HEIGHT, int &POINT_SIZE, int &NUM_POINTS, float &MAX_VELOCITY,
+                 float &BASE_GRAVITY_CONSTANT, float &MAX_GRAVITY_RANGE, float &MOUSE_INFLUENCE_RADIUS,
+                 float &FRICTION_FACTOR, float &GRAVITY)
 {
     std::ifstream file("params.txt");
+    std::string line;
     if (file.is_open())
     {
-        file >> GRAVITY;
-        file >> BASE_GRAVITY_CONSTANT;
-        file >> MAX_VELOCITY;
-        file >> POINT_SIZE;
-        file >> SCREEN_WIDTH;
-        file >> SCREEN_HEIGHT;
+        while (std::getline(file, line))
+        {
+            std::istringstream is_line(line);
+            std::string key;
+            if (std::getline(is_line, key, '='))
+            {
+                std::string value;
+                if (std::getline(is_line, value))
+                {
+                    std::stringstream val(value);
+                    if (key == "SCREEN_WIDTH")
+                        val >> SCREEN_WIDTH;
+                    else if (key == "SCREEN_HEIGHT")
+                        val >> SCREEN_HEIGHT;
+                    else if (key == "POINT_SIZE")
+                        val >> POINT_SIZE;
+                    else if (key == "NUM_POINTS")
+                        val >> NUM_POINTS;
+                    else if (key == "MAX_VELOCITY")
+                        val >> MAX_VELOCITY;
+                    else if (key == "BASE_GRAVITY_CONSTANT")
+                        val >> BASE_GRAVITY_CONSTANT;
+                    else if (key == "MAX_GRAVITY_RANGE")
+                        val >> MAX_GRAVITY_RANGE;
+                    else if (key == "MOUSE_INFLUENCE_RADIUS")
+                        val >> MOUSE_INFLUENCE_RADIUS;
+                    else if (key == "FRICTION_FACTOR")
+                        val >> FRICTION_FACTOR;
+                    else if (key == "GRAVITY")
+                        val >> GRAVITY;
+                }
+            }
+        }
         file.close();
     }
     else

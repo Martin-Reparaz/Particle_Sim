@@ -1,9 +1,23 @@
-#include "../include/params.hpp"
 #include "../include/utils.hpp"
+#include <SDL2/SDL.h>
 #include <vector>
 
 int main()
 {
+    int SCREEN_WIDTH = 600;
+    int SCREEN_HEIGHT = 400;
+    int POINT_SIZE = 1;
+    int NUM_POINTS = 500;
+    float MAX_VELOCITY = 10.0f;
+    float BASE_GRAVITY_CONSTANT = 0.0008f;
+    float MAX_GRAVITY_RANGE = 150.0f;
+    float MOUSE_INFLUENCE_RADIUS = 50.0f;
+    float FRICTION_FACTOR = 0.2f;
+    float GRAVITY = 0.0f;
+
+    read_params(SCREEN_WIDTH, SCREEN_HEIGHT, POINT_SIZE, NUM_POINTS, MAX_VELOCITY, BASE_GRAVITY_CONSTANT,
+                MAX_GRAVITY_RANGE, MOUSE_INFLUENCE_RADIUS, FRICTION_FACTOR, GRAVITY);
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL no pudo inicializarse! SDL_Error: %s\n", SDL_GetError());
