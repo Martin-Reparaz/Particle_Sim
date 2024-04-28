@@ -35,8 +35,8 @@ float calculate_distance(float x1, float y1, float x2, float y2)
 float calculate_gravity_force(const Point &point, const Point &otherPoint)
 {
     float distance = calculate_distance(point.x, point.y, otherPoint.x, otherPoint.y);
-    float force = BASE_GRAVITY_CONSTANT * point.mass * otherPoint.mass / pow(distance, 2);
-    return force;
+    float rangeFactor = std::max(1.0f - distance / MAX_GRAVITY_RANGE, 0.0f);
+    return BASE_GRAVITY_CONSTANT * rangeFactor;
 }
 
 void apply_gravity(Point &point, const Point &otherPoint)

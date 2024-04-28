@@ -2,7 +2,7 @@
 #define UTILS_HPP
 
 #include "params.hpp"
-#include <cmath>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <random>

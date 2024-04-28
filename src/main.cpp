@@ -8,9 +8,9 @@ int main()
     int SCREEN_HEIGHT = 400;
     int POINT_SIZE = 1;
     int NUM_POINTS = 500;
-    float MAX_VELOCITY = 10.0f;
+    float MAX_VELOCITY = 4.0f;
     float BASE_GRAVITY_CONSTANT = 0.0008f;
-    float MAX_GRAVITY_RANGE = 150.0f;
+    float MAX_GRAVITY_RANGE = 50.0f;
     float MOUSE_INFLUENCE_RADIUS = 50.0f;
     float FRICTION_FACTOR = 0.2f;
     float GRAVITY = 0.0f;
@@ -46,8 +46,8 @@ int main()
         Point point;
         point.x = generate_random_int(0, SCREEN_WIDTH - POINT_SIZE);
         point.y = generate_random_int(0, SCREEN_HEIGHT - POINT_SIZE);
-        point.xVelocity = generate_random_float(-4.0, 4.0);
-        point.yVelocity = generate_random_float(-4.0, 4.0);
+        point.xVelocity = generate_random_float(-1.0, 1.0);
+        point.yVelocity = generate_random_float(-1.0, 1.0);
         point.color = {255, 255, 255, 255};
         points.push_back(point);
         point.mass = 1.0;
