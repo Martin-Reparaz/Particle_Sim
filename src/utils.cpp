@@ -65,9 +65,43 @@ bool check_collision(const Point &point, const Point &point2)
 
 void handle_collision(Point &point, Point &point2)
 {
-    float angle = atan2(point2.y - point.y, point2.x - point.x);
-    point.xVelocity = cos(angle) * MAX_VELOCITY;
-    point.yVelocity = sin(angle) * MAX_VELOCITY;
+    // Calcular las componentes de velocidad relativa
+    float relativeVelocityX = point2.xVelocity - point1.xVelocity;
+    float relativeVelocityY = point2.yVelocity - point1.yVelocity;
+
+    // Calcular el vector de posición relativa
+    float relativeX = point2.x - point1.x;
+    float relativeY = point2.y - point1.y;
+
+    // Calcular la distancia entre los centros de las partículas
+    float distance = std::sqrt(relativeX * relativeX + relativeY * relativeY);
+
+    // Calcular las componentes de dirección normalizada
+    float normalX = relativeX / distance;
+    float normalY = relativeY / distance;
+
+    // Calcular la proyección de las velocidades relativas en la dirección normal
+    float velocityAlongNormal = relativeVelocityX * normalX + relativeVelocityY * normalY;
+
+    // Si las partículas se están acercando
+    if (velocityAlongNormal < 0) {
+        // Calcular e intercambiar las velocidades a lo largo de la dirección normal
+        float restitution = 0.8;  // Coeficiente de restitución (ajusta según sea necesario)
+        float impulse = -(1 + restitution) * velocityAlongNormal / (1 / point1.mass + 1 / point2.mass);
+
+        point1.xVelocity -= (impulse / point1.mass) * normalX;
+        point1.yVelocity -= (impulse / point1.mass) * normalY;
+
+        point2.xVelocity += (impulse / point2.mass) * normalX;
+        point2.yVelocity += (impulse / point2.mass) * normalY;
+
+        // Aplicar fricción a las velocidades después de la colisión
+        point1.xVelocity *= FRICTION_FACTOR;
+        point1.yVelocity *= FRICTION_FACTOR;
+
+        point2.xVelocity *= FRICTION_FACTOR;
+        point2.yVelocity *= FRICTION_FACTOR;
+    }
 }
 
 void read_params(int &SCREEN_WIDTH, int &SCREEN_HEIGHT, int &POINT_SIZE, int &NUM_POINTS, float &MAX_VELOCITY,
