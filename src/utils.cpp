@@ -63,7 +63,7 @@ bool check_collision(const Point &point, const Point &point2)
     return calculate_distance(point.x, point.y, point2.x, point2.y) < POINT_SIZE;
 }
 
-void handle_collision(Point &point, Point &point2)
+void handle_collision(Point &point1, Point &point2)
 {
     // Calcular las componentes de velocidad relativa
     float relativeVelocityX = point2.xVelocity - point1.xVelocity;
