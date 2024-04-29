@@ -12,7 +12,7 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 # Lista de archivos fuente
-set(SOURCES src/main.cpp)
+set(SOURCES src/main.cpp src/utils.cpp)
 
 # Genera el ejecutable
 add_executable(particles ${SOURCES})

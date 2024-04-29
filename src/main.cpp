@@ -1,186 +1,53 @@
+#include "../include/utils.hpp"
 #include <SDL2/SDL.h>
 #include <vector>
-#include <cmath>
-#include <random>
-#include <fstream>
-#include <sstream>
 
-int SCREEN_WIDTH = 640;
-int SCREEN_HEIGHT = 480;
-int POINT_SIZE = 1;
-int NUM_POINTS = 500;
-float MAX_VELOCITY = 10.0;
-float BASE_GRAVITY_CONSTANT = 0.0008;
-float MAX_GRAVITY_RANGE = 150.0;
-float MOUSE_INFLUENCE_RADIUS = 50.0;  // Radio de influencia del clic del ratón
-float FRICTION_FACTOR = 0.2; // Factor de fricción 
-float GRAVITY = 0.1;
+int main()
+{
+    int SCREEN_WIDTH = 600;
+    int SCREEN_HEIGHT = 400;
+    int POINT_SIZE = 1;
+    int NUM_POINTS = 500;
+    float MAX_VELOCITY = 4.0f;
+    float BASE_GRAVITY_CONSTANT = 0.0008f;
+    float MAX_GRAVITY_RANGE = 50.0f;
+    float MOUSE_INFLUENCE_RADIUS = 50.0f;
+    float FRICTION_FACTOR = 0.2f;
+    float GRAVITY = 0.0f;
 
-struct Point {
-    float x;
-    float y;
-    float xVelocity;
-    float yVelocity;
-    float mass;
-    SDL_Color color;
-};
+    read_params(SCREEN_WIDTH, SCREEN_HEIGHT, POINT_SIZE, NUM_POINTS, MAX_VELOCITY, BASE_GRAVITY_CONSTANT,
+                MAX_GRAVITY_RANGE, MOUSE_INFLUENCE_RADIUS, FRICTION_FACTOR, GRAVITY);
 
-float calculateDistance(float x1, float y1, float x2, float y2) {
-    return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
-}
-
-float calculateGravityForce(const Point& point, const Point& otherPoint) {
-    float distance = calculateDistance(point.x, point.y, otherPoint.x, otherPoint.y);
-    float rangeFactor = std::max(1.0 - distance / MAX_GRAVITY_RANGE, 0.0);
-    return BASE_GRAVITY_CONSTANT * rangeFactor;
-}
-
-void applyGravity(Point& point, const Point& otherPoint) {
-    float force = calculateGravityForce(point, otherPoint);
-    
-    // Aplicar la fuerza de gravedad
-    float angle = atan2(otherPoint.y - point.y, otherPoint.x - point.x);
-    point.xVelocity += force * cos(angle);
-    point.yVelocity += force * sin(angle);
-}
-
-void limitVelocity(Point& point) {
-    float velocityMagnitude = std::sqrt(std::pow(point.xVelocity, 2) + std::pow(point.yVelocity, 2));
-
-    if (velocityMagnitude > MAX_VELOCITY) {
-        float scale = MAX_VELOCITY / velocityMagnitude;
-        point.xVelocity *= scale;
-        point.yVelocity *= scale;
-    }
-}
-
-bool checkCollision(const Point& point1, const Point& point2) {
-    float distance = calculateDistance(point1.x, point1.y, point2.x, point2.y);
-    return distance < POINT_SIZE;
-}
-
-void handleCollision(Point& point1, Point& point2) {
-    // Calcular las componentes de velocidad relativa
-    float relativeVelocityX = point2.xVelocity - point1.xVelocity;
-    float relativeVelocityY = point2.yVelocity - point1.yVelocity;
-
-    // Calcular el vector de posición relativa
-    float relativeX = point2.x - point1.x;
-    float relativeY = point2.y - point1.y;
-
-    // Calcular la distancia entre los centros de las partículas
-    float distance = std::sqrt(relativeX * relativeX + relativeY * relativeY);
-
-    // Calcular las componentes de dirección normalizada
-    float normalX = relativeX / distance;
-    float normalY = relativeY / distance;
-
-    // Calcular la proyección de las velocidades relativas en la dirección normal
-    float velocityAlongNormal = relativeVelocityX * normalX + relativeVelocityY * normalY;
-
-    // Si las partículas se están acercando
-    if (velocityAlongNormal < 0) {
-        // Calcular e intercambiar las velocidades a lo largo de la dirección normal
-        float restitution = 0.8;  // Coeficiente de restitución (ajusta según sea necesario)
-        float impulse = -(1 + restitution) * velocityAlongNormal / (1 / point1.mass + 1 / point2.mass);
-
-        point1.xVelocity -= (impulse / point1.mass) * normalX;
-        point1.yVelocity -= (impulse / point1.mass) * normalY;
-
-        point2.xVelocity += (impulse / point2.mass) * normalX;
-        point2.yVelocity += (impulse / point2.mass) * normalY;
-
-        // Aplicar fricción a las velocidades después de la colisión
-        point1.xVelocity *= FRICTION_FACTOR;
-        point1.yVelocity *= FRICTION_FACTOR;
-
-        point2.xVelocity *= FRICTION_FACTOR;
-        point2.yVelocity *= FRICTION_FACTOR;
-    }
-}
-
-void leer_params(){
-
-// Leer parámetros desde el archivo params.txt
-    std::ifstream paramsFile("params.txt");
-    if (!paramsFile.is_open()) {
-        printf("Error: No se pudo abrir el archivo params.txt\n");
-    }
-
-    std::string line;
-    while (std::getline(paramsFile, line)) {
-        std::istringstream iss(line);
-        std::string paramName;
-        std::string paramValue;
-        if (std::getline(iss, paramName, '=') && std::getline(iss, paramValue)) {
-            std::istringstream valueStream(paramValue);
-            if (paramName == "SCREEN_WIDTH") {
-                valueStream >> SCREEN_WIDTH;
-            } else if (paramName == "SCREEN_HEIGHT") {
-                valueStream >> SCREEN_HEIGHT;
-            } else if (paramName == "POINT_SIZE") {
-                valueStream >> POINT_SIZE;
-            } else if (paramName == "NUM_POINTS") {
-                valueStream >> NUM_POINTS;
-            } else if (paramName == "MAX_VELOCITY") {
-                valueStream >> MAX_VELOCITY;
-            } else if (paramName == "BASE_GRAVITY_CONSTANT") {
-                valueStream >> BASE_GRAVITY_CONSTANT;
-            } else if (paramName == "MAX_GRAVITY_RANGE") {
-                valueStream >> MAX_GRAVITY_RANGE;
-            } else if (paramName == "MOUSE_INFLUENCE_RADIUS") {
-                valueStream >> MOUSE_INFLUENCE_RADIUS;
-            } else if (paramName == "FRICTION_FACTOR") {
-                valueStream >> FRICTION_FACTOR;
-            } else if (paramName == "GRAVITY") {
-                valueStream >> GRAVITY;
-            }else {
-            // Identificar posibles errores
-            printf("Parámetro desconocido: %s\n", paramName.c_str());
-        }
-        }
-    }
-    paramsFile.close();
-
-}
-
-int main(int argc, char* args[]) {
-
-    leer_params();
-
-    // Nuevas líneas para generar posiciones iniciales con distribuciones aleatorias
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> disX(0, SCREEN_WIDTH - POINT_SIZE);
-    std::uniform_int_distribution<int> disY(0, SCREEN_HEIGHT - POINT_SIZE);
-    std::uniform_real_distribution<float> disVelX(-4.0, 4.0);
-    std::uniform_real_distribution<float> disVelY(-4.0, 4.0);
-	
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
         printf("SDL no pudo inicializarse! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("ParticleSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == NULL) {
+    SDL_Window *window = SDL_CreateWindow("ParticleSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+                                          SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == NULL)
+    {
         printf("La ventana no pudo crearse! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) {
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL)
+    {
         printf("El renderizador no pudo crearse! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
     std::vector<Point> points;
 
-    for (int i = 0; i < NUM_POINTS; ++i) {
+    for (int i = 0; i < NUM_POINTS; ++i)
+    {
         Point point;
-        point.x = disX(gen);
-        point.y = disY(gen);
-        point.xVelocity = disVelX(gen);
-	    point.yVelocity = disVelY(gen);
+        point.x = generate_random_int(0, SCREEN_WIDTH - POINT_SIZE);
+        point.y = generate_random_int(0, SCREEN_HEIGHT - POINT_SIZE);
+        point.xVelocity = generate_random_float(-1.0, 1.0);
+        point.yVelocity = generate_random_float(-1.0, 1.0);
         point.color = {255, 255, 255, 255};
         points.push_back(point);
         point.mass = 1.0;
@@ -190,41 +57,60 @@ int main(int argc, char* args[]) {
     bool leftMousePressed = false;
     bool rightMousePressed = false;
 
-    while (!quit) {
+    while (!quit)
+    {
         SDL_Event e;
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
+            {
                 quit = true;
-            }else if (e.type == SDL_MOUSEBUTTONDOWN) {
-            if (e.button.button == SDL_BUTTON_LEFT) {
-                leftMousePressed = true;
-            } else if (e.button.button == SDL_BUTTON_RIGHT) {
-                rightMousePressed = true;
             }
-            } else if (e.type == SDL_MOUSEBUTTONUP) {
-                if (e.button.button == SDL_BUTTON_LEFT) {
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
+                    leftMousePressed = true;
+                }
+                else if (e.button.button == SDL_BUTTON_RIGHT)
+                {
+                    rightMousePressed = true;
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONUP)
+            {
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
                     leftMousePressed = false;
-                } else if (e.button.button == SDL_BUTTON_RIGHT) {
+                }
+                else if (e.button.button == SDL_BUTTON_RIGHT)
+                {
                     rightMousePressed = false;
                 }
             }
-	    }
+        }
 
-	    // Aplicar la lógica del clic del ratón si está presionado
-        if (rightMousePressed || leftMousePressed) {
+        // Aplicar la lógica del clic del ratón si está presionado
+        if (rightMousePressed || leftMousePressed)
+        {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
 
-            for (auto& point : points) {
-                float distanceToMouse = calculateDistance(point.x, point.y, mouseX, mouseY);
-                if (distanceToMouse <= MOUSE_INFLUENCE_RADIUS) {
+            for (auto &point : points)
+            {
+                float distanceToMouse = calculate_distance(point.x, point.y, mouseX, mouseY);
+                if (distanceToMouse <= MOUSE_INFLUENCE_RADIUS)
+                {
                     // Calcula la velocidad proporcional a la distancia
                     float influenceFactor = MOUSE_INFLUENCE_RADIUS / (distanceToMouse + 1.0);
                     float angleToMouse = atan2(mouseY - point.y, mouseX - point.x);
-                    if(leftMousePressed){
+                    if (leftMousePressed)
+                    {
                         point.xVelocity -= influenceFactor * cos(angleToMouse);
                         point.yVelocity -= influenceFactor * sin(angleToMouse);
-                    }else if(rightMousePressed){
+                    }
+                    else if (rightMousePressed)
+                    {
                         point.xVelocity += influenceFactor * cos(angleToMouse);
                         point.yVelocity += influenceFactor * sin(angleToMouse);
                     }
@@ -238,66 +124,81 @@ int main(int argc, char* args[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        for (size_t i = 0; i < points.size(); ++i) {
-            for (size_t j = i + 1; j < points.size(); ++j) {
-                applyGravity(points[i], points[j]);
-                applyGravity(points[j], points[i]);
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            for (size_t j = i + 1; j < points.size(); ++j)
+            {
+                apply_gravity(points[i], points[j]);
+                apply_gravity(points[j], points[i]);
             }
         }
 
-        for (auto& point : points) {
-        point.yVelocity += GRAVITY;
+        for (auto &point : points)
+        {
+            point.yVelocity += GRAVITY;
         }
 
-        for (auto& point : points) {
-            limitVelocity(point);
+        for (auto &point : points)
+        {
+            limit_velocity(point);
         }
 
-        for (auto& point : points) {
+        for (auto &point : points)
+        {
             point.x += point.xVelocity;
             point.y += point.yVelocity;
 
-            // if (point.x < 0 || point.x > SCREEN_WIDTH - POINT_SIZE) {
-            //     point.xVelocity = -point.xVelocity;
-            // }
-            // if (point.y < 0 || point.y > SCREEN_HEIGHT - POINT_SIZE) {
-            //     point.yVelocity = -point.yVelocity;
-            // }
-
             // Corregir la posición para que la partícula permanezca dentro de los límites de la ventana
-            if (point.x < 0) {
+            if (point.x < 0)
+            {
                 point.x = 0;
-                point.xVelocity = -point.xVelocity;  // Invertir la velocidad en x
-            } else if (point.x > SCREEN_WIDTH - POINT_SIZE) {
+                point.xVelocity = -point.xVelocity; // Invertir la velocidad en x
+            }
+            else if (point.x > SCREEN_WIDTH - POINT_SIZE)
+            {
                 point.x = SCREEN_WIDTH - POINT_SIZE;
-                point.xVelocity = -point.xVelocity;  // Invertir la velocidad en x
+                point.xVelocity = -point.xVelocity; // Invertir la velocidad en x
             }
 
-            if (point.y < 0) {
+            if (point.y < 0)
+            {
                 point.y = 0;
-                point.yVelocity = -point.yVelocity;  // Invertir la velocidad en y
-            } else if (point.y > SCREEN_HEIGHT - POINT_SIZE) {
+                point.yVelocity = -point.yVelocity; // Invertir la velocidad en y
+            }
+            else if (point.y > SCREEN_HEIGHT - POINT_SIZE)
+            {
                 point.y = SCREEN_HEIGHT - POINT_SIZE;
-                point.yVelocity = -point.yVelocity;  // Invertir la velocidad en y
+                point.yVelocity = -point.yVelocity; // Invertir la velocidad en y
             }
         }
 
-        for (size_t i = 0; i < points.size(); ++i) {
-            for (size_t j = i + 1; j < points.size(); ++j) {
-                if (checkCollision(points[i], points[j])) {
-		    if(points[j].color.g > 0){
-			if(points[j].color.b != 1){
-			    points[j].color.b -= 1;
-			}else points[j].color.g -= 1;
-		    }
-		    if(points[i].color.g > 0){
-                        if(points[i].color.b != 1){
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            for (size_t j = i + 1; j < points.size(); ++j)
+            {
+                if (check_collision(points[i], points[j]))
+                {
+                    if (points[j].color.g > 0)
+                    {
+                        if (points[j].color.b != 1)
+                        {
+                            points[j].color.b -= 1;
+                        }
+                        else
+                            points[j].color.g -= 1;
+                    }
+                    if (points[i].color.g > 0)
+                    {
+                        if (points[i].color.b != 1)
+                        {
                             points[i].color.b -= 1;
-                        }else points[i].color.g -= 1;
+                        }
+                        else
+                            points[i].color.g -= 1;
                     }
 
-       	            // Manejar la colisión, ajustando la posición para evitar la superposición
-                    float overlap = POINT_SIZE - calculateDistance(points[i].x, points[i].y, points[j].x, points[j].y);
+                    // Manejar la colisión, ajustando la posición para evitar la superposición
+                    float overlap = POINT_SIZE - calculate_distance(points[i].x, points[i].y, points[j].x, points[j].y);
                     float angle = atan2(points[i].y - points[j].y, points[i].x - points[j].x);
 
                     // Separar los puntos ajustando sus posiciones
@@ -308,12 +209,13 @@ int main(int argc, char* args[]) {
 
                     std::swap(points[i].xVelocity, points[j].xVelocity);
                     std::swap(points[i].yVelocity, points[j].yVelocity);
-                    handleCollision(points[i], points[j]);
+                    handle_collision(points[i], points[j]);
                 }
             }
         }
 
-        for (const auto& point : points) {
+        for (const auto &point : points)
+        {
             SDL_SetRenderDrawColor(renderer, point.color.r, point.color.g, point.color.b, point.color.a);
             SDL_Rect pointRect = {static_cast<int>(point.x), static_cast<int>(point.y), POINT_SIZE, POINT_SIZE};
             SDL_RenderFillRect(renderer, &pointRect);
