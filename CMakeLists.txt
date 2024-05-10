@@ -2,20 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ParticleSim)
 
-# Especifica la versión de C++
+# Specify C++ version
 set(CMAKE_CXX_STANDARD 14)
 
-# Encuentra la librería SDL2
+# Search for SDL2 library 
 find_package(SDL2 REQUIRED)
 
-# Incluye las cabeceras de SDL2
+# Include SDL2 headers
 include_directories(${SDL2_INCLUDE_DIRS})
 
-# Lista de archivos fuente
+# Source files list
 set(SOURCES src/main.cpp src/utils.cpp)
 
-# Genera el ejecutable
+# Generate executable
 add_executable(particles ${SOURCES})
 
-# Enlaza con la librería SDL2
+# Link SDL2 library
 target_link_libraries(particles ${SDL2_LIBRARIES})
