@@ -31,7 +31,7 @@ else
         fi
     else
         echo -e "${RED}Library not found. Install it by using the command: ${GREEN}sudo apt-get install libsdl2-dev${NC}"
-        echo -e "${RED}Or execute this script using sudo for automatic install: ${GREEN} sudo ./build.sh"
+        echo -e "${RED}Or execute this script using sudo for automatic install: ${GREEN} sudo ./build"
         exit 1
     fi
 fi
@@ -40,16 +40,16 @@ fi
 
 echo -e "${YELLOW}Checking directories...${NC}"
 
-if [ -d "build" ]; then
-    echo -e "${BLUE}Build directory found.${NC}"
+if [ -d "build_files" ]; then
+    echo -e "${BLUE}Build_files directory found.${NC}"
 else
-    echo -e "${RED}build directory does not exist, creating directory.${NC}"
-    mkdir build
+    echo -e "${RED}build_files directory does not exist, creating directory.${NC}"
+    mkdir build_files
 fi
 
 ###############################################################################################################################
 
-cd build
+cd build_files
 echo -e "${YELLOW}Generating files...${NC}"
 cmake ..
 
